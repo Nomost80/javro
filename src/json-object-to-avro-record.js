@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1)
+
 const JsonObjectToAvroRecord = function JsonSchemaToAvro(jsonSchema, allowMultipleTypes = false) {
   if (jsonSchema.type !== 'object') {
     throw new Error(`Can only convert objects to records (got type '${jsonSchema.type}')`);
@@ -36,7 +38,7 @@ const JsonObjectToAvroRecord = function JsonSchemaToAvro(jsonSchema, allowMultip
       case 'number': return 'double';
       case 'integer': return 'long';
       case 'boolean': return 'boolean';
-      case 'object': return new JsonObjectToAvroRecord(property).mapObjectToRecord(nestedNamespace, key);
+      case 'object': return new JsonObjectToAvroRecord(property).mapObjectToRecord(property.namespace || nestedNamespace, key);
       case 'array': return mapAnArray(nestedNamespace, key, property, jsonPropertyToAvroTypesFunc);
       default: throw new Error(`Can't work out what type '${type}' for key '${key}' should be in Avro`);
     }
@@ -103,15 +105,15 @@ const JsonObjectToAvroRecord = function JsonSchemaToAvro(jsonSchema, allowMultip
 
   function turnJsonPropertiesIntoAvroFields(nestedNamespace, properties, required) {
     return Object.keys(properties).sort().map(key => turnJsonPropertyIntoAvroField(nestedNamespace,
-      key, properties[key], required));
+        properties[key].alias || key, properties[key], required));
   }
 
   this.mapObjectToRecord = function mapObjectToRecord(namespace, name) {
     return {
-      namespace,
-      name,
+      ...namespace && { namespace },
+      name: capitalize(name), // we want object record in pascal case due to class naming conventions
       type: 'record',
-      fields: turnJsonPropertiesIntoAvroFields(`${namespace}.${name}Package`, jsonSchema.properties, jsonSchema.required),
+      fields: turnJsonPropertiesIntoAvroFields(namespace, jsonSchema.properties, jsonSchema.required),
     };
   };
 };
