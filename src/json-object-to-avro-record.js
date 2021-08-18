@@ -113,7 +113,7 @@ const JsonObjectToAvroRecord = function JsonSchemaToAvro(jsonSchema, allowMultip
       ...namespace && { namespace },
       name: capitalize(name), // we want object record in pascal case due to class naming conventions
       type: 'record',
-      fields: turnJsonPropertiesIntoAvroFields(namespace, jsonSchema.properties, jsonSchema.required),
+      fields: turnJsonPropertiesIntoAvroFields(`${namespace}.${name}`, jsonSchema.properties, jsonSchema.required),
     };
   };
 };
