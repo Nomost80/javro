@@ -46,7 +46,7 @@ const JsonObjectToAvroRecord = function JsonSchemaToAvro(jsonSchema, allowMultip
 
   function jsonPropertyToAvroTypes(nestedNamespace, key, property) {
     // Favor oneOf or allOf property if present if not, fall back to type parameter
-    if (property.oneOf || property.allOf) {
+    if ((property.oneOf && property.oneOf[0].properties) || (property.allOf && property.allOf[0].properties)) {
       // flatten its nested object(s)
       const flattened = {
         type: 'object',
