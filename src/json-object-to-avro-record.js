@@ -38,7 +38,7 @@ const JsonObjectToAvroRecord = function JsonSchemaToAvro(jsonSchema, allowMultip
       case 'number': return 'double';
       case 'integer': return 'long';
       case 'boolean': return 'boolean';
-      case 'object': return new JsonObjectToAvroRecord(property).mapObjectToRecord(property.namespace || nestedNamespace, key);
+      case 'object': return new JsonObjectToAvroRecord(property, allowMultipleTypes).mapObjectToRecord(property.namespace || nestedNamespace, key);
       case 'array': return mapAnArray(nestedNamespace, key, property, jsonPropertyToAvroTypesFunc);
       default: throw new Error(`Can't work out what type '${type}' for key '${key}' should be in Avro`);
     }
